@@ -1,17 +1,8 @@
-# Decision making with Matrices
-
-# This is a pretty simple assingment.  You will do something you do everyday, but today it will be with matrix manipulations.
-
-# The problem is: you and your work firends are trying to decide where to go for lunch. You have to pick a resturant thats best for everyone.  Then you should decided if you should split into two groups so eveyone is happier.
-
-# Displicte the simplictiy of the process you will need to make decisions regarding how to process the data.
-
-# This process was thoughly investigated in the operation research community.  This approah can prove helpful on any number of decsion making problems that are currently not leveraging machine learning.
-
-
-# You asked your 10 work friends to answer a survey. They gave you back the following dictionary object.
 import numpy as np
 from scipy.stats import rankdata
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.metrics.pairwise import pairwise_distances_argmin
 
 def make_dict(names, categories, floatRint):
     # Create People & Restaurant Dictionary with random integer (or) float
@@ -127,7 +118,7 @@ print(r_names)
 print(np.sum(M_people_X_restaurants, axis=1))
 print("")
 
-print("What do the entry’s represent?")
+print("What do the entrys represent?")
 print ("Each entry represents overall score of each restaurants by all users")
 
 print("")
@@ -159,9 +150,54 @@ print("")
 
 # Why is there a difference between the two?  What problem arrives?  What does represent in the real world?
 
-# How should you preprocess your data to remove this problem.
+# Code reference: https://matplotlib.org/gallery/images_contours_and_fields/image_annotated_heatmap.html#sphx-glr-gallery-images-contours-and-fields-image-annotated-heatmap-py
 
+fig, ax = plt.subplots(figsize=(8, 8))
+plt.imshow(M_people_X_restaurants)
+ax.set_xticks(np.arange(len(r_names)))
+ax.set_yticks(np.arange(len(p_names)))
+
+ax.set_xticklabels(r_names)
+ax.set_yticklabels(p_names)
+
+plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+         rotation_mode="anchor")
+
+for i in range(len(p_names)):
+    for j in range(len(r_names)):
+        text = ax.text(j, i, round(M_people_X_restaurants[i, j],2),
+                       ha="center", va="center", color="w")
+
+ax.set_title('People Vs. Restaurants Scores') 
+fig.tight_layout()
+plt.show()
+plt.close()
+
+# How should you preprocess your data to remove this problem.
 # Find user profiles that are problematic, explain why?
+kmeans = KMeans(n_clusters=2, random_state=0).fit(M_people_X_restaurants)
+k_means_cluster_centers = np.sort(kmeans.cluster_centers_, axis=0)
+k_means_labels = pairwise_distances_argmin(M_people_X_restaurants, k_means_cluster_centers)
+n_clusters = 2
+colors = ['#4EACC5', '#FF9C34', '#4E9A06'] 
+centroids = kmeans.cluster_centers_
+labels = kmeans.labels_
+
+fig, ax = plt.subplots(figsize=(5, 5))
+for k, col in zip(range(n_clusters), colors):
+    my_members = k_means_labels == k
+    cluster_center = k_means_cluster_centers[k]
+    ax.plot(M_people_X_restaurants[my_members, 0], M_people_X_restaurants[my_members, 1], 'w',
+            markerfacecolor=col, marker='.', markersize=12)
+    ax.plot(cluster_center[0], cluster_center[1], 'o', markerfacecolor=col,
+            markeredgecolor='k', markersize=15)
+
+ax.set_title('KMeans - People Vs Restaurants')
+ax.set_xticks(())
+ax.set_yticks(())
+plt.show()
+plt.close()
+
 
 print ("Think of two metrics to compute the disatistifaction with the group.")
 
@@ -179,10 +215,10 @@ for i in range(len(M_restaurant_min)):
 
 
 # Should you split in two groups today?
-
-# Ok. Now you just found out the boss is paying for the meal. How should you adjust. Now what is best restaurant?
-
-# Awesome, make the cost weigth to zero and recalculate the rank.
+print("")
+print("Ok. Now you just found out the boss is paying for the meal. How should you adjust. Now what is best restaurant?")
+print("Awesome, make the cost weigth to zero and recalculate the rank.")
+print("")
 
 #M_people[:, 2] = 0
 #M_people_X_restaurants, rankMatrix, M_usr_x_rest_rank = DataProcessing(M_people, M_restaurants, r_names)
@@ -191,4 +227,5 @@ for i in range(len(M_restaurant_min)):
 #print (M_usr_x_rest_rank)
 
 # Tommorow you visit another team. You have the same restaurants and they told you their optimal ordering for restaurants.  Can you find their weight matrix?
+
 import pdb; pdb.set_trace()
