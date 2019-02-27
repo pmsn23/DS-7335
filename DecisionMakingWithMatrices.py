@@ -1,8 +1,16 @@
+import time
+import warnings
 import numpy as np
 from scipy.stats import rankdata
 import matplotlib.pyplot as plt
-from sklearn.cluster import KMeans
+from sklearn import cluster
+from sklearn.cluster import KMeans, MiniBatchKMeans
 from sklearn.metrics.pairwise import pairwise_distances_argmin
+
+import sys
+orig_stdout = sys.stdout
+f = open('MuthuPalaniHomeWork3.txt', 'w')
+sys.stdout = f
 
 def make_dict(names, categories, floatRint):
     # Create People & Restaurant Dictionary with random integer (or) float
@@ -73,10 +81,14 @@ print("")
 print ("=-=-=-=-=-=-=-=-= People Names =-=-=-=-=-=-=")
 print(p_names)
 print("")
+print("=-=-=-=-=-=-=-=-= Category =-=-=-=-=-=-=")
+print(p_cats)
+print("")
 
 print("Transform the user data into a matrix(M_people). Keep track of column and row ids")
 print ("=-=-=-=-=-=-=-=- People Matrix =-=-=-=-=-=-=")
 print (M_people)
+print("Each row represents a person and each column is a category in the above order")
 print('')
 
 r_names  = ['Flacos', 'PF Changs', 'Madeo', 'Souplantation', 'TGI Friday', 'The Stand','Lamandier','Amelie','Fiesta','Chilis']
@@ -88,15 +100,19 @@ M_restaurants = convert_list_to_matrix(restaurants)
 print("")
 print ("=-=-=-=-=-=-= Restaurants Names =-=-=-=-=-=-=-=-=")
 print(r_names)
+print("")
+print("=-=-=-=-=-=-=-=-= Category =-=-=-=-=-=-=")
+print(p_cats)
 
 print("")
 print("Transform the restaurant data into a matrix(M_resturants) use the same column index.")
-print ("=-=-=-=-=-=-=-=- Resturants Matrix =-=-=-=-=-=-=")
+print ("=-=-=-=-=-=-=-=- Restaurants Matrix =-=-=-=-=-=-=")
 print (M_restaurants)
+print("Each row represents a restaurant and each column is a category in the above order")
 print('')
 
-print ("The most imporant idea in this project is the idea of a linear combination.")
-print("Informally describe what a linear combination is and how it will relate to our resturant matrix.")
+print ("The most important idea in this project is the idea of a linear combination.")
+print("Informally describe what a linear combination is and how it will relate to our restaurant matrix.")
 print("blah blah blah..")
 print("")
 
@@ -118,13 +134,14 @@ print(r_names)
 print(np.sum(M_people_X_restaurants, axis=1))
 print("")
 
-print("What do the entrys represent?")
+print("What do the entries represent?")
 print ("Each entry represents overall score of each restaurants by all users")
+print ("This is the raw score out of 100")
 
 print("")
 print ("Choose a person and compute(using a linear combination) the top restaurant for them.")
 print("What does each entry in the resulting vector represent.")
-print ("=-=-=-=-=-= Most Favourite Restaurant of =-=-=-=-=-=")
+print ("=-=-=-=-=-= Most Favorite Restaurant of =-=-=-=-=-=")
 
 M_restaurant_max = np.argmax(M_people_X_restaurants, axis=1);
 M_people_max = np.argmax(M_people_X_restaurants, axis=0);
@@ -140,17 +157,21 @@ for i in range(len(M_restaurant_max)):
 
 print("")    
 print("Now convert each row in the M_usr_x_rest into a ranking for each user and call it M_usr_x_rest_rank.") 
-print("Do the same as above to generate the optimal resturant choice")
+print("Do the same as above to generate the optimal restaurant choice")
 print("")
 print ("=-=-=-=-=-= Ranks of Restaurants by all People =-=-=-=-=-=-=-=")
-print("1: Least & 10: Most Favourite Restaurant")
+print("1: Least & 10: Most Favorite Restaurant")
 print("")
 print(M_usr_x_rest_rank)
 print("")
 
-# Why is there a difference between the two?  What problem arrives?  What does represent in the real world?
+print ("Why is there a difference between the two?")  
+print("What problem arrives?")
+print("What does represent in the real world?")
 
-# Code reference: https://matplotlib.org/gallery/images_contours_and_fields/image_annotated_heatmap.html#sphx-glr-gallery-images-contours-and-fields-image-annotated-heatmap-py
+print("")
+# Code reference:
+#https://matplotlib.org/gallery/images_contours_and_fields/image_annotated_heatmap.html#sphx-glr-gallery-images-contours-and-fields-image-annotated-heatmap-py
 
 fig, ax = plt.subplots(figsize=(8, 8))
 plt.imshow(M_people_X_restaurants)
@@ -175,37 +196,67 @@ plt.close()
 
 # How should you preprocess your data to remove this problem.
 # Find user profiles that are problematic, explain why?
-kmeans = KMeans(n_clusters=2, random_state=0).fit(M_people_X_restaurants)
-k_means_cluster_centers = np.sort(kmeans.cluster_centers_, axis=0)
-k_means_labels = pairwise_distances_argmin(M_people_X_restaurants, k_means_cluster_centers)
-n_clusters = 2
-colors = ['#4EACC5', '#FF9C34', '#4E9A06'] 
-centroids = kmeans.cluster_centers_
-labels = kmeans.labels_
+n_clusters = 1
+batch_size = 45
+# KMeans
 
-fig, ax = plt.subplots(figsize=(5, 5))
+colors = ['#4EACC5', '#FF9C34', '#4E9A06','#377eb8']
+
+fig = plt.figure(figsize=(8, 5))
+fig.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.9)
+
+for i in range(3):
+    
+    
+    ax = fig.add_subplot(1, 3, n_clusters)
+    n_clusters = n_clusters+1
+    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(M_people_X_restaurants)
+    k_means_cluster_centers = np.sort(kmeans.cluster_centers_, axis=0)
+    k_means_labels = pairwise_distances_argmin(M_people_X_restaurants, k_means_cluster_centers)
+
+    for k, col in zip(range(n_clusters), colors):
+        my_members = k_means_labels == k
+        cluster_center = k_means_cluster_centers[k]
+        ax.plot(M_people_X_restaurants[my_members, 0], M_people_X_restaurants[my_members, 1], 'w',
+                markerfacecolor=col, marker='.', markersize=12)
+        ax.plot(cluster_center[0], cluster_center[1], 'o', markerfacecolor=col,
+                markeredgecolor='k', markersize=15)
+
+        ax.set_title('KMeans - %i' %n_clusters)
+        ax.set_xticks(())
+        ax.set_yticks(())
+
+# MiniBatchKMeans
+'''
+mbk = MiniBatchKMeans(init='k-means++', n_clusters=3, batch_size=batch_size,
+                      n_init=10, max_no_improvement=10, verbose=0).fit(M_people_X_restaurants)
+mbk_means_cluster_centers = np.sort(mbk.cluster_centers_, axis=0)
+mbk_means_labels = pairwise_distances_argmin(M_people_X_restaurants, mbk_means_cluster_centers)
+
+ax = fig.add_subplot(1, 2, 2)
 for k, col in zip(range(n_clusters), colors):
-    my_members = k_means_labels == k
-    cluster_center = k_means_cluster_centers[k]
+    my_members = mbk_means_labels == k
+    cluster_center = mbk_means_cluster_centers[k]
     ax.plot(M_people_X_restaurants[my_members, 0], M_people_X_restaurants[my_members, 1], 'w',
-            markerfacecolor=col, marker='.', markersize=12)
+            markerfacecolor=col, marker='.')
     ax.plot(cluster_center[0], cluster_center[1], 'o', markerfacecolor=col,
-            markeredgecolor='k', markersize=15)
-
-ax.set_title('KMeans - People Vs Restaurants')
+            markeredgecolor='k', markersize=6)
+ax.set_title('MiniBatchKMeans')
 ax.set_xticks(())
 ax.set_yticks(())
+'''
+
 plt.show()
 plt.close()
 
 
-print ("Think of two metrics to compute the disatistifaction with the group.")
+print ("Think of two metrics to compute the dissatisfaction with the group.")
 
 M_restaurant_min = np.argmin(M_people_X_restaurants, axis=1);
 M_people_min = np.argmin(M_people_X_restaurants, axis=0);
 
 print("")
-print ("=-=-=-=-=-= Least Favourite Restaurant of =-=-=-=-=-=")
+print ("=-=-=-=-=-= Least Favorite Restaurant of =-=-=-=-=-=")
 for i in range(len(M_people_min)):
     print (p_names[i], "is", r_names[M_people_min[i]])
 
@@ -217,15 +268,19 @@ for i in range(len(M_restaurant_min)):
 # Should you split in two groups today?
 print("")
 print("Ok. Now you just found out the boss is paying for the meal. How should you adjust. Now what is best restaurant?")
-print("Awesome, make the cost weigth to zero and recalculate the rank.")
+print("!! Awesome, make the cost weight to zero and recalculate the rank.")
 print("")
 
-#M_people[:, 2] = 0
-#M_people_X_restaurants, rankMatrix, M_usr_x_rest_rank = DataProcessing(M_people, M_restaurants, r_names)
-#M_usr_x_rest_rank = sorted(rankMatrix.items(), key=lambda kv: kv[1])
-#print ("=-=-=-=-= Restaurants Rank by all People (Boss is paying) =-=-=-=-=-=-=")
-#print (M_usr_x_rest_rank)
+newM_people = M_people
+newM_people[:, 2] = 0
+M_people_X_restaurants, rankMatrix, M_usr_x_rest_rank = DataProcessing(newM_people, M_restaurants, r_names)
+M_usr_x_rest_rank = sorted(rankMatrix.items(), key=lambda kv: kv[1])
+
+print ("=-=-=-=-= Restaurants Rank by all People (Boss is paying) =-=-=-=-=-=-=")
+print (M_usr_x_rest_rank)
 
 # Tommorow you visit another team. You have the same restaurants and they told you their optimal ordering for restaurants.  Can you find their weight matrix?
+sys.stdout = orig_stdout
+f.close()
 
 import pdb; pdb.set_trace()
