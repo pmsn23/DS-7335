@@ -53,7 +53,7 @@ def convert_list_to_matrix(list):
     return(passing_list_array)
     
 def DataProcessing(people, restaurants, names):
-
+    # One Stop function to create people x restaurant matrix and the rank..
     new_people = np.swapaxes(people, 0, 1)
     people_X_restaurants = np.dot(restaurants, new_people)
     restaurants_sum = np.sum(people_X_restaurants, axis=1)
@@ -64,6 +64,7 @@ def DataProcessing(people, restaurants, names):
     return (people_X_restaurants, rankMatrix, usr_x_rest_rank)
 
 def createRankMatrix(names, ranks):
+    # Create rank from raw score.
     rankMatrix = {}
     for i in range(len(ranks)):
         name = names[i]
@@ -72,7 +73,7 @@ def createRankMatrix(names, ranks):
     return rankMatrix
 
 p_names  = ['Ross', 'Rachel', 'Joey', 'Monica', 'Phoebe','Chandler','Jerry', 'George', 'Kramer', 'Elaine']
-p_cats = ['Willingness to travel','Desire for new experience', 'Cost','Vegetarian']
+p_cats = ['Willingness to travel','Desire for new experience', 'Cost', 'Choice of Menu',"Sevice", 'Environment']
 
 people = make_dict(p_names, p_cats, "F")
 
@@ -92,13 +93,13 @@ print("Each row represents a person and each column is a category in the above o
 print('')
 
 r_names  = ['Flacos', 'PF Changs', 'Madeo', 'Souplantation', 'TGI Friday', 'The Stand','Lamandier','Amelie','Fiesta','Chilis']
-r_cats = ['Distance', 'Novelty', 'Cost', 'Vegetarian']
+r_cats = ['Distance', 'Novelty', 'Cost', "Food-Beverage Options", "Staff", "Ambience"]
 
 restaurants = make_dict(r_names,r_cats, "I")
 
 M_restaurants = convert_list_to_matrix(restaurants)
 print("")
-print ("=-=-=-=-=-=-= Restaurants Names =-=-=-=-=-=-=-=-=")
+print("=-=-=-=-=-=-= Restaurants Names =-=-=-=-=-=-=-=-=")
 print(r_names)
 print("")
 print("=-=-=-=-=-=-=-=-= Category =-=-=-=-=-=-=")
@@ -106,12 +107,12 @@ print(r_cats)
 
 print("")
 print("Transform the restaurant data into a matrix(M_resturants) use the same column index.")
-print ("=-=-=-=-=-=-=-=- Restaurants Matrix =-=-=-=-=-=-=")
-print (M_restaurants)
+print("=-=-=-=-=-=-=-=- Restaurants Matrix =-=-=-=-=-=-=")
+print(M_restaurants)
 print("Each row represents a restaurant and each column is a category in the above order")
 print('')
 
-print ("The most important idea in this project is the idea of a linear combination.")
+print("The most important idea in this project is the idea of a linear combination.")
 print("Informally describe what a linear combination is and how it will relate to our restaurant matrix.")
 print("blah blah blah..")
 print("")
@@ -129,7 +130,7 @@ print("What does the a_ij matrix represent?")
 print("Each Rows represents Restaurants and Column represents the People")
 print("")
 
-print ("Sum all columns in M_usr_x_rest to get optimal restaurant for all users.")
+print("Sum all columns in M_usr_x_rest to get optimal restaurant for all users.")
 print(r_names)
 print(np.sum(M_people_X_restaurants, axis=1))
 print("")
@@ -139,9 +140,9 @@ print ("Each entry represents overall score of each restaurants by all users")
 print ("This is the raw score out of 100")
 
 print("")
-print ("Choose a person and compute(using a linear combination) the top restaurant for them.")
+print("Choose a person and compute(using a linear combination) the top restaurant for them.")
 print("What does each entry in the resulting vector represent.")
-print ("=-=-=-=-=-= Most Favorite Restaurant of =-=-=-=-=-=")
+print("=-=-=-=-=-= Most Favorite Restaurant of =-=-=-=-=-=")
 
 M_restaurant_max = np.argmax(M_people_X_restaurants, axis=1);
 M_people_max = np.argmax(M_people_X_restaurants, axis=0);
@@ -159,7 +160,7 @@ print("")
 print("Now convert each row in the M_usr_x_rest into a ranking for each user and call it M_usr_x_rest_rank.") 
 print("Do the same as above to generate the optimal restaurant choice")
 print("")
-print ("=-=-=-=-=-= Ranks of Restaurants by all People =-=-=-=-=-=-=-=")
+print("=-=-=-=-=-= Ranks of Restaurants by all People =-=-=-=-=-=-=-=")
 print("1: Least & 10: Most Favorite Restaurant")
 print("")
 print(M_usr_x_rest_rank)
@@ -200,7 +201,11 @@ plt.close()
 
 print("How should you preprocess your data to remove this problem.")
 print("Could remove the outlier (scored very low) and check if this improves the situation")
-print("Identify a mean between the person and the group so that every one can enjoy the meal")
+print("Identify a common restaurant between the person and the group so that every one can enjoy the meal")
+print("Other options discussed are.. ")
+print("Overall Score could be used to decide on what restaurants to go!")
+print("Identify highest disapproval rating and exclude them from the selection")
+
 
 print("Find user profiles that are problematic, explain why?")
 print("Heat map created on the matrix could identify the person who made those choices for further action/decision")
@@ -264,7 +269,7 @@ M_restaurant_min = np.argmin(M_people_X_restaurants, axis=1);
 M_people_min = np.argmin(M_people_X_restaurants, axis=0);
 
 print("")
-print ("=-=-=-=-=-= Least Favorite Restaurant of =-=-=-=-=-=")
+print("=-=-=-=-=-= Least Favorite Restaurant of =-=-=-=-=-=")
 for i in range(len(M_people_min)):
     print (p_names[i], "is", r_names[M_people_min[i]])
 
@@ -273,9 +278,9 @@ for i in range(len(M_restaurant_min)):
     print (r_names[i], "got low score from ", p_names[M_restaurant_min[i]])
 
 
-print ("Should you split in two groups today?")
-print ("K-Mean clustering could help decide on the answer, if there is unanimous choice of one individual then Yes.")
-print ("Otherwise, rely on the recommendation from the clustering results.")
+print("Should you split in two groups today?")
+print("K-Mean clustering could help decide on the answer, if there is unanimous choice of one individual then Yes.")
+print("Otherwise, rely on the recommendation from the clustering results.")
 
 print("")
 print("Ok. Now you just found out the boss is paying for the meal. How should you adjust. Now what is best restaurant?")
@@ -287,8 +292,8 @@ newM_people[:, 2] = 0
 M_people_X_restaurants, rankMatrix, M_usr_x_rest_rank = DataProcessing(newM_people, M_restaurants, r_names)
 M_usr_x_rest_rank = sorted(rankMatrix.items(), key=lambda kv: kv[1])
 
-print ("=-=-=-=-= Restaurants Rank by all People (Boss is paying) =-=-=-=-=-=-=")
-print (M_usr_x_rest_rank)
+print("=-=-=-=-= Restaurants Rank by all People (Boss is paying) =-=-=-=-=-=-=")
+print(M_usr_x_rest_rank)
 
 print("")
 print("As you can see, the top restaurants choices are same, Cost is not the only deciding factor")
