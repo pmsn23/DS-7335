@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans #, MiniBatchKMeans
 from sklearn.metrics.pairwise import pairwise_distances_argmin
 from sklearn.decomposition import PCA
+from scipy.cluster.hierarchy import dendrogram, linkage
 
 import sys
 orig_stdout = sys.stdout
@@ -72,6 +73,59 @@ def createRankMatrix(names, ranks):
         rank = ranks[i]
         rankMatrix[name] = rank
     return rankMatrix
+
+def dentogram(fitMatrix, label, title):
+    pca = PCA(n_components=2)  
+    PcaTransform = pca.fit_transform(fitMatrix)  
+
+    linked = linkage(PcaTransform, 'single')
+    fig = plt.figure(figsize=(17, 7))
+    ax = fig.add_subplot(1, 1, 1)
+    dendrogram(linked,  
+               orientation='top',
+               labels=label,
+               distance_sort='descending',
+               show_leaf_counts=True, ax=ax)
+    ax.set_title(title)
+    ax.tick_params(axis='x', which='major', labelsize=15)
+    ax.tick_params(axis='y', which='major', labelsize=15)
+    plt.show()  
+    
+    return
+
+def knn2to4(fitMatrix):
+    n_clusters = 1 # Initialize, gets incremented inside the loop.
+    colors = ['#4EACC5', '#FF9C34', '#4E9A06','#377eb8'] # colors for the plot.
+
+    fig = plt.figure(figsize=(8, 5))
+    fig.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.9)
+    plt.suptitle('KMeans with PCA')
+
+    for i in range(3):
+        
+        ax = fig.add_subplot(1, 3, n_clusters)
+        n_clusters = n_clusters+1
+        kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(fitMatrix)
+        k_means_cluster_centers = np.sort(kmeans.cluster_centers_, axis=0)
+        k_means_labels = pairwise_distances_argmin(fitMatrix, k_means_cluster_centers)
+
+        for k, col in zip(range(n_clusters), colors):
+            my_members = k_means_labels == k
+            cluster_center = k_means_cluster_centers[k]
+            ax.plot(fitMatrix[my_members, 0], fitMatrix[my_members, 1], 'w',
+                    markerfacecolor=col, marker='.', markersize=12)
+            ax.plot(cluster_center[0], cluster_center[1], 'o', markerfacecolor=col,
+                    markeredgecolor='k', markersize=15)
+            
+            ax.set_title('KMeans - %i' %n_clusters)
+            ax.set_xticks(())
+            ax.set_yticks(())
+
+    plt.show()
+    plt.close()
+
+    return
+
 
 p_names  = ['Ross', 'Rachel', 'Joey', 'Monica', 'Phoebe','Chandler','Jerry', 'George', 'Kramer', 'Elaine']
 p_cats = ['Willingness to travel','Desire for new experience', 'Cost', 'Choice of Menu',"Service", 'Environment']
@@ -212,49 +266,17 @@ print("")
 print("Find user profiles that are problematic, explain why?")
 print("Heat map created on the matrix could identify the person who made those choices for further action/decision")
 
-# KMeans
-
-def knn2to4(fitMatrix):
-    n_clusters = 1 # Initialize, gets incremented inside the loop.
-    colors = ['#4EACC5', '#FF9C34', '#4E9A06','#377eb8'] # colors for the plot.
-
-    fig = plt.figure(figsize=(8, 5))
-    fig.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.9)
-    plt.suptitle('KMeans with PCA')
-
-    for i in range(3):
-        
-        ax = fig.add_subplot(1, 3, n_clusters)
-        n_clusters = n_clusters+1
-        kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(fitMatrix)
-        k_means_cluster_centers = np.sort(kmeans.cluster_centers_, axis=0)
-        k_means_labels = pairwise_distances_argmin(fitMatrix, k_means_cluster_centers)
-
-        for k, col in zip(range(n_clusters), colors):
-            my_members = k_means_labels == k
-            cluster_center = k_means_cluster_centers[k]
-            ax.plot(fitMatrix[my_members, 0], fitMatrix[my_members, 1], 'w',
-                    markerfacecolor=col, marker='.', markersize=12)
-            ax.plot(cluster_center[0], cluster_center[1], 'o', markerfacecolor=col,
-                    markeredgecolor='k', markersize=15)
-            
-            ax.set_title('KMeans - %i' %n_clusters)
-            ax.set_xticks(())
-            ax.set_yticks(())
-
-    plt.show()
-    plt.close()
-
-    return
-
 # KNN with PCA.
 pca = PCA(n_components=2)  
 mPeopleXRestaurantsPcaTransform = pca.fit_transform(M_people_X_restaurants)  
 knn2to4(mPeopleXRestaurantsPcaTransform)
 
-# Call the function to create KNN with 2 to 4 cluster and visualization.
-#knn2to4(M_people_X_restaurants)
 
+title = "Restaurants Dentogram"
+dentogram(M_restaurants, r_names, title)
+
+title = "People Dentogram"
+dentogram(M_people, p_names, title)
 
 # MiniBatchKMeans
 '''
