@@ -1,11 +1,12 @@
-import time
-import warnings
+#import time
+#import warnings
 import numpy as np
 from scipy.stats import rankdata
 import matplotlib.pyplot as plt
-from sklearn import cluster
-from sklearn.cluster import KMeans, MiniBatchKMeans
+#from sklearn import cluster
+from sklearn.cluster import KMeans #, MiniBatchKMeans
 from sklearn.metrics.pairwise import pairwise_distances_argmin
+from sklearn.decomposition import PCA
 
 import sys
 orig_stdout = sys.stdout
@@ -73,7 +74,7 @@ def createRankMatrix(names, ranks):
     return rankMatrix
 
 p_names  = ['Ross', 'Rachel', 'Joey', 'Monica', 'Phoebe','Chandler','Jerry', 'George', 'Kramer', 'Elaine']
-p_cats = ['Willingness to travel','Desire for new experience', 'Cost', 'Choice of Menu',"Sevice", 'Environment']
+p_cats = ['Willingness to travel','Desire for new experience', 'Cost', 'Choice of Menu',"Service", 'Environment']
 
 people = make_dict(p_names, p_cats, "F")
 
@@ -213,31 +214,47 @@ print("Heat map created on the matrix could identify the person who made those c
 
 # KMeans
 
-n_clusters = 1 # Initialize, gets incremented inside the loop.
-colors = ['#4EACC5', '#FF9C34', '#4E9A06','#377eb8'] # colors for the plot.
+def knn2to4(fitMatrix):
+    n_clusters = 1 # Initialize, gets incremented inside the loop.
+    colors = ['#4EACC5', '#FF9C34', '#4E9A06','#377eb8'] # colors for the plot.
 
-fig = plt.figure(figsize=(8, 5))
-fig.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.9)
+    fig = plt.figure(figsize=(8, 5))
+    fig.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.9)
+    plt.suptitle('KMeans with PCA')
 
-for i in range(3):
-    
-    ax = fig.add_subplot(1, 3, n_clusters)
-    n_clusters = n_clusters+1
-    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(M_people_X_restaurants)
-    k_means_cluster_centers = np.sort(kmeans.cluster_centers_, axis=0)
-    k_means_labels = pairwise_distances_argmin(M_people_X_restaurants, k_means_cluster_centers)
+    for i in range(3):
+        
+        ax = fig.add_subplot(1, 3, n_clusters)
+        n_clusters = n_clusters+1
+        kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(fitMatrix)
+        k_means_cluster_centers = np.sort(kmeans.cluster_centers_, axis=0)
+        k_means_labels = pairwise_distances_argmin(fitMatrix, k_means_cluster_centers)
 
-    for k, col in zip(range(n_clusters), colors):
-        my_members = k_means_labels == k
-        cluster_center = k_means_cluster_centers[k]
-        ax.plot(M_people_X_restaurants[my_members, 0], M_people_X_restaurants[my_members, 1], 'w',
-                markerfacecolor=col, marker='.', markersize=12)
-        ax.plot(cluster_center[0], cluster_center[1], 'o', markerfacecolor=col,
-                markeredgecolor='k', markersize=15)
+        for k, col in zip(range(n_clusters), colors):
+            my_members = k_means_labels == k
+            cluster_center = k_means_cluster_centers[k]
+            ax.plot(fitMatrix[my_members, 0], fitMatrix[my_members, 1], 'w',
+                    markerfacecolor=col, marker='.', markersize=12)
+            ax.plot(cluster_center[0], cluster_center[1], 'o', markerfacecolor=col,
+                    markeredgecolor='k', markersize=15)
+            
+            ax.set_title('KMeans - %i' %n_clusters)
+            ax.set_xticks(())
+            ax.set_yticks(())
 
-        ax.set_title('KMeans - %i' %n_clusters)
-        ax.set_xticks(())
-        ax.set_yticks(())
+    plt.show()
+    plt.close()
+
+    return
+
+# KNN with PCA.
+pca = PCA(n_components=2)  
+mPeopleXRestaurantsPcaTransform = pca.fit_transform(M_people_X_restaurants)  
+knn2to4(mPeopleXRestaurantsPcaTransform)
+
+# Call the function to create KNN with 2 to 4 cluster and visualization.
+#knn2to4(M_people_X_restaurants)
+
 
 # MiniBatchKMeans
 '''
@@ -260,8 +277,6 @@ ax.set_xticks(())
 ax.set_yticks(())
 '''
 
-plt.show()
-plt.close()
 
 print ("Think of two metrics to compute the dissatisfaction with the group.")
 
@@ -297,7 +312,10 @@ print(M_usr_x_rest_rank)
 
 print("")
 print("As you can see, the top restaurants choices are same, Cost is not the only deciding factor")
-# Tommorow you visit another team. You have the same restaurants and they told you their optimal ordering for restaurants.  Can you find their weight matrix?
+print("")
+
+print("Tommorow you visit another team. You have the same restaurants and they told you their optimal ordering for restaurants.")
+print("Can you find their weight matrix?")
 
 sys.stdout = orig_stdout
 f.close()
