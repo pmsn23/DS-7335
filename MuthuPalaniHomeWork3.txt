@@ -7,16 +7,16 @@
 
 Transform the user data into a matrix(M_people). Keep track of column and row ids
 =-=-=-=-=-=-=-=- People Matrix =-=-=-=-=-=-=
-[[0.1232 0.3783 0.2101 0.2884]
- [0.0458 0.4465 0.3094 0.1982]
- [0.1186 0.4522 0.1134 0.3158]
- [0.3976 0.2762 0.1408 0.1854]
- [0.2326 0.0588 0.0807 0.628 ]
- [0.5014 0.0985 0.3299 0.0702]
- [0.0118 0.2363 0.6958 0.0561]
- [0.1882 0.5433 0.2516 0.0169]
- [0.1364 0.1075 0.4389 0.3171]
- [0.0171 0.4531 0.1196 0.4102]]
+[[0.17 0.15 0.11 0.57]
+ [0.37 0.37 0.12 0.14]
+ [0.39 0.11 0.22 0.28]
+ [0.69 0.13 0.15 0.03]
+ [0.02 0.39 0.01 0.58]
+ [0.37 0.33 0.05 0.25]
+ [0.01 0.23 0.59 0.17]
+ [0.42 0.43 0.05 0.1 ]
+ [0.09 0.55 0.27 0.1 ]
+ [0.07 0.21 0.26 0.46]]
 Each row represents a person and each column is a category in the above order
 
 
@@ -24,20 +24,20 @@ Each row represents a person and each column is a category in the above order
 ['Flacos', 'PF Changs', 'Madeo', 'Souplantation', 'TGI Friday', 'The Stand', 'Lamandier', 'Amelie', 'Fiesta', 'Chilis']
 
 =-=-=-=-=-=-=-=-= Category =-=-=-=-=-=-=
-['Willingness to travel', 'Desire for new experience', 'Cost', 'Vegetarian']
+['Distance', 'Novelty', 'Cost', 'Vegetarian']
 
 Transform the restaurant data into a matrix(M_resturants) use the same column index.
 =-=-=-=-=-=-=-=- Restaurants Matrix =-=-=-=-=-=-=
-[[ 3  4  5  2]
- [ 9  7  6  1]
- [ 9  8  8  8]
- [ 1  6  4  5]
- [ 8  4 10  6]
- [ 1  3  7  3]
- [ 6  3  6  4]
- [ 1  9  4  5]
- [ 9  8  5  5]
- [ 4  4  1  2]]
+[[ 7  9  7  7]
+ [ 1  8  5  6]
+ [ 8  8  6  8]
+ [ 9 10  7  7]
+ [ 7  5  1  1]
+ [ 6  3  8 10]
+ [ 2  7  7  9]
+ [ 5  1  6  4]
+ [ 7  9  8  6]
+ [ 9  5  4  4]]
 Each row represents a restaurant and each column is a category in the above order
 
 The most important idea in this project is the idea of a linear combination.
@@ -47,24 +47,23 @@ blah blah blah..
 
 Next compute a new matrix (M_usr_x_rest  i.e. an user by restaurant) from all people
 =-=-=-=-=-=-= Restaurants X People =-=-=-=-=-=-=-=-=
-[[3.5101 3.8668 3.3632 3.3724 2.5925 3.6881 4.5718 4.0296 3.6679 3.2821]
- [5.3059 5.5923 5.229  6.542  3.6172 7.2517 5.9912 7.0234 4.9306 4.4534]
- [8.1232 8.045  8.1186 8.3976 8.2334 8.5014 8.0118 8.1882 8.1356 8.0171]
- [4.6754 4.9534 4.8644 3.545  4.0482 2.763  4.4933 4.5389 4.1225 5.2651]
- [6.3302 6.4356 5.7864 6.806  6.671  8.1254 8.3342 6.2962 7.8128 5.6064]
- [3.594  4.1457 3.2164 2.768  2.8579 3.3168 5.7596 3.63   4.4825 3.4442]
- [4.2883 4.2635 4.0118 4.8006 4.5682 5.5641 5.1789 4.3363 5.0427 3.8203]
- [5.8103 6.2929 6.221  4.3736 4.2246 3.0585 5.2022 6.1688 4.445  6.6244]
- [6.6277 6.5222 6.831  7.419  6.1073 7.3011 5.7561 7.3827 5.8676 6.4277]
- [2.7929 2.675  3.0282 3.2068 2.5023 2.8699 1.8004 3.2114 2.0487 2.8208]]
+[[7.3  7.74 7.22 7.26 7.78 7.66 7.46 7.86 8.17 7.42]
+ [5.34 4.77 4.05 2.66 6.67 4.76 5.82 4.71 6.44 5.81]
+ [7.78 7.76 7.56 7.7  7.98 7.9  6.82 7.9  7.54 7.48]
+ [7.79 8.85 8.11 8.77 8.21 8.73 7.71 9.13 8.9  7.77]
+ [2.62 4.7  3.78 5.66 2.68 4.54 1.98 5.24 3.75 2.26]
+ [8.05 5.69 7.23 6.03 7.17 6.11 7.17 5.21 5.35 7.73]
+ [7.29 5.43 5.61 3.61 8.06 5.65 7.29 5.1  6.82 7.57]
+ [3.94 3.5  4.5  4.6  2.87 3.48 4.5  3.23 3.02 3.96]
+ [6.84 7.72 7.16 7.38 7.21 7.46 7.88 7.81 8.34 7.22]
+ [5.   6.22 6.06 7.58 4.49 6.18 4.28 6.53 5.04 4.56]]
 
 What does the a_ij matrix represent?
 Each Rows represents Restaurants and Column represents the People
 
 Sum all columns in M_usr_x_rest to get optimal restaurant for all users.
 ['Flacos', 'PF Changs', 'Madeo', 'Souplantation', 'TGI Friday', 'The Stand', 'Lamandier', 'Amelie', 'Fiesta', 'Chilis']
-[35.9445 55.9367 81.7719 43.2692 68.2042 37.2151 45.8747 52.4213 66.2424
- 26.9564]
+[75.87 51.03 76.42 83.97 37.21 65.74 62.43 37.6  75.02 55.94]
 
 What do the entries represent?
 Each entry represents overall score of each restaurants by all users
@@ -73,27 +72,27 @@ This is the raw score out of 100
 Choose a person and compute(using a linear combination) the top restaurant for them.
 What does each entry in the resulting vector represent.
 =-=-=-=-=-= Most Favorite Restaurant of =-=-=-=-=-=
-Ross is Madeo
-Rachel is Madeo
-Joey is Madeo
-Monica is Madeo
-Phoebe is Madeo
-Chandler is Madeo
-Jerry is TGI Friday
-George is Madeo
-Kramer is Madeo
-Elaine is Madeo
+Ross is The Stand
+Rachel is Souplantation
+Joey is Souplantation
+Monica is Souplantation
+Phoebe is Souplantation
+Chandler is Souplantation
+Jerry is Fiesta
+George is Souplantation
+Kramer is Souplantation
+Elaine is Souplantation
 
-Flacos got high score from  Jerry
-PF Changs got high score from  Chandler
-Madeo got high score from  Chandler
-Souplantation got high score from  Elaine
-TGI Friday got high score from  Jerry
-The Stand got high score from  Jerry
-Lamandier got high score from  Chandler
-Amelie got high score from  Elaine
-Fiesta got high score from  Monica
-Chilis got high score from  George
+Flacos got high score from  Kramer
+PF Changs got high score from  Phoebe
+Madeo got high score from  Phoebe
+Souplantation got high score from  George
+TGI Friday got high score from  Monica
+The Stand got high score from  Ross
+Lamandier got high score from  Phoebe
+Amelie got high score from  Monica
+Fiesta got high score from  Kramer
+Chilis got high score from  Monica
 
 Now convert each row in the M_usr_x_rest into a ranking for each user and call it M_usr_x_rest_rank.
 Do the same as above to generate the optimal restaurant choice
@@ -101,39 +100,53 @@ Do the same as above to generate the optimal restaurant choice
 =-=-=-=-=-= Ranks of Restaurants by all People =-=-=-=-=-=-=-=
 1: Least & 10: Most Favorite Restaurant
 
-[('Chilis', 1.0), ('Flacos', 2.0), ('The Stand', 3.0), ('Souplantation', 4.0), ('Lamandier', 5.0), ('Amelie', 6.0), ('PF Changs', 7.0), ('Fiesta', 8.0), ('TGI Friday', 9.0), ('Madeo', 10.0)]
+[('TGI Friday', 1.0), ('Amelie', 2.0), ('PF Changs', 3.0), ('Chilis', 4.0), ('Lamandier', 5.0), ('The Stand', 6.0), ('Fiesta', 7.0), ('Flacos', 8.0), ('Madeo', 9.0), ('Souplantation', 10.0)]
 
 Why is there a difference between the two?
+Individual choice and collective choice are closely align if there are no extreme scores (high/low) from individuals
 What problem arrives?
+High/Low score across on restaurants, for example one person giving high scores to multiple restaurants creates bias 
 What does represent in the real world?
+It is difficult to control individual choice as it is based on the individual experience.
+This will also open up an opportunity to check if the data is accurate
 
+How should you preprocess your data to remove this problem.
+Could remove the outlier (scored very low) and check if this improves the situation
+Identify a mean between the person and the group so that every one can enjoy the meal
+Find user profiles that are problematic, explain why?
+Heat map created on the matrix could identify the person who made those choices for further action/decision
 Think of two metrics to compute the dissatisfaction with the group.
 
 =-=-=-=-=-= Least Favorite Restaurant of =-=-=-=-=-=
-Ross is Chilis
-Rachel is Chilis
-Joey is Chilis
-Monica is The Stand
-Phoebe is Chilis
-Chandler is Souplantation
-Jerry is Chilis
-George is Chilis
-Kramer is Chilis
-Elaine is Chilis
+Ross is TGI Friday
+Rachel is Amelie
+Joey is TGI Friday
+Monica is PF Changs
+Phoebe is TGI Friday
+Chandler is Amelie
+Jerry is TGI Friday
+George is Amelie
+Kramer is Amelie
+Elaine is TGI Friday
 
-Flacos got low score from  Phoebe
-PF Changs got low score from  Phoebe
+Flacos got low score from  Joey
+PF Changs got low score from  Monica
 Madeo got low score from  Jerry
-Souplantation got low score from  Chandler
-TGI Friday got low score from  Elaine
-The Stand got low score from  Monica
-Lamandier got low score from  Elaine
-Amelie got low score from  Chandler
-Fiesta got low score from  Jerry
+Souplantation got low score from  Jerry
+TGI Friday got low score from  Jerry
+The Stand got low score from  George
+Lamandier got low score from  Monica
+Amelie got low score from  Phoebe
+Fiesta got low score from  Ross
 Chilis got low score from  Jerry
+Should you split in two groups today?
+K-Mean clustering could help decide on the answer, if there is unanimous choice of one individual then Yes.
+Otherwise, rely on the recommendation from the clustering results.
 
 Ok. Now you just found out the boss is paying for the meal. How should you adjust. Now what is best restaurant?
 !! Awesome, make the cost weight to zero and recalculate the rank.
 
 =-=-=-=-= Restaurants Rank by all People (Boss is paying) =-=-=-=-=-=-=
-[('The Stand', 1.0), ('Flacos', 2.0), ('Chilis', 3.0), ('Lamandier', 4.0), ('Souplantation', 5.0), ('PF Changs', 6.0), ('TGI Friday', 7.0), ('Amelie', 8.0), ('Fiesta', 9.0), ('Madeo', 10.0)]
+[('Amelie', 1.0), ('TGI Friday', 2.0), ('PF Changs', 3.0), ('Chilis', 4.0), ('Lamandier', 5.0), ('The Stand', 6.0), ('Fiesta', 7.0), ('Flacos', 8.0), ('Madeo', 9.0), ('Souplantation', 10.0)]
+
+As you can see, the top restaurants choices are same, Cost is not the only deciding factor

@@ -24,7 +24,7 @@ def make_dict(names, categories, floatRint):
             random_prefs = np.random.dirichlet(np.ones(len(categories)),size=1)
             # Need to reshape as dirichlet creates list of list
             random_prefs = random_prefs.reshape(len(categories),)
-            random_prefs = np.around(random_prefs, decimals = 4)
+            random_prefs = np.around(random_prefs, decimals = 2)
         elif floatRint == "I":
             random_prefs = np.random.randint(1, 11, len(categories))
         else:
@@ -102,7 +102,7 @@ print ("=-=-=-=-=-=-= Restaurants Names =-=-=-=-=-=-=-=-=")
 print(r_names)
 print("")
 print("=-=-=-=-=-=-=-=-= Category =-=-=-=-=-=-=")
-print(p_cats)
+print(r_cats)
 
 print("")
 print("Transform the restaurant data into a matrix(M_resturants) use the same column index.")
@@ -165,9 +165,13 @@ print("")
 print(M_usr_x_rest_rank)
 print("")
 
-print ("Why is there a difference between the two?")  
+print("Why is there a difference between the two?")
+print("Individual choice and collective choice are closely align if there are no extreme scores (high/low) from individuals")
 print("What problem arrives?")
+print("High/Low score across on restaurants, for example one person giving high scores to multiple restaurants creates bias ")  
 print("What does represent in the real world?")
+print("It is difficult to control individual choice as it is based on the individual experience.")
+print("This will also open up an opportunity to check if the data is accurate")
 
 print("")
 # Code reference:
@@ -181,7 +185,7 @@ ax.set_yticks(np.arange(len(p_names)))
 ax.set_xticklabels(r_names)
 ax.set_yticklabels(p_names)
 
-plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+plt.setp(ax.get_xticklabels(), rotation=35, ha="right",
          rotation_mode="anchor")
 
 for i in range(len(p_names)):
@@ -194,19 +198,22 @@ fig.tight_layout()
 plt.show()
 plt.close()
 
-# How should you preprocess your data to remove this problem.
-# Find user profiles that are problematic, explain why?
-n_clusters = 1
-batch_size = 45
+print("How should you preprocess your data to remove this problem.")
+print("Could remove the outlier (scored very low) and check if this improves the situation")
+print("Identify a mean between the person and the group so that every one can enjoy the meal")
+
+print("Find user profiles that are problematic, explain why?")
+print("Heat map created on the matrix could identify the person who made those choices for further action/decision")
+
 # KMeans
 
-colors = ['#4EACC5', '#FF9C34', '#4E9A06','#377eb8']
+n_clusters = 1 # Initialize, gets incremented inside the loop.
+colors = ['#4EACC5', '#FF9C34', '#4E9A06','#377eb8'] # colors for the plot.
 
 fig = plt.figure(figsize=(8, 5))
 fig.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.9)
 
 for i in range(3):
-    
     
     ax = fig.add_subplot(1, 3, n_clusters)
     n_clusters = n_clusters+1
@@ -228,7 +235,8 @@ for i in range(3):
 
 # MiniBatchKMeans
 '''
-mbk = MiniBatchKMeans(init='k-means++', n_clusters=3, batch_size=batch_size,
+batch_size = 45
+bk = MiniBatchKMeans(init='k-means++', n_clusters=3, batch_size=batch_size,
                       n_init=10, max_no_improvement=10, verbose=0).fit(M_people_X_restaurants)
 mbk_means_cluster_centers = np.sort(mbk.cluster_centers_, axis=0)
 mbk_means_labels = pairwise_distances_argmin(M_people_X_restaurants, mbk_means_cluster_centers)
@@ -265,7 +273,10 @@ for i in range(len(M_restaurant_min)):
     print (r_names[i], "got low score from ", p_names[M_restaurant_min[i]])
 
 
-# Should you split in two groups today?
+print ("Should you split in two groups today?")
+print ("K-Mean clustering could help decide on the answer, if there is unanimous choice of one individual then Yes.")
+print ("Otherwise, rely on the recommendation from the clustering results.")
+
 print("")
 print("Ok. Now you just found out the boss is paying for the meal. How should you adjust. Now what is best restaurant?")
 print("!! Awesome, make the cost weight to zero and recalculate the rank.")
@@ -279,6 +290,8 @@ M_usr_x_rest_rank = sorted(rankMatrix.items(), key=lambda kv: kv[1])
 print ("=-=-=-=-= Restaurants Rank by all People (Boss is paying) =-=-=-=-=-=-=")
 print (M_usr_x_rest_rank)
 
+print("")
+print("As you can see, the top restaurants choices are same, Cost is not the only deciding factor")
 # Tommorow you visit another team. You have the same restaurants and they told you their optimal ordering for restaurants.  Can you find their weight matrix?
 sys.stdout = orig_stdout
 f.close()
