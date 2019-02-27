@@ -114,7 +114,9 @@ print('')
 
 print("The most important idea in this project is the idea of a linear combination.")
 print("Informally describe what a linear combination is and how it will relate to our restaurant matrix.")
-print("blah blah blah..")
+print("Linear Combination is the process of simplifying two algebric equation so that one variable is eliminated.")
+print("In this People vs. Restuarant matrics the weights and ratings are simplified for arriving at the rank ")
+
 print("")
 
 M_people_X_restaurants, rankMatrix, M_usr_x_rest_rank = DataProcessing(M_people, M_restaurants, r_names)
@@ -205,8 +207,7 @@ print("Identify a common restaurant between the person and the group so that eve
 print("Other options discussed are.. ")
 print("Overall Score could be used to decide on what restaurants to go!")
 print("Identify highest disapproval rating and exclude them from the selection")
-
-
+print("")
 print("Find user profiles that are problematic, explain why?")
 print("Heat map created on the matrix could identify the person who made those choices for further action/decision")
 
@@ -262,7 +263,6 @@ ax.set_yticks(())
 plt.show()
 plt.close()
 
-
 print ("Think of two metrics to compute the dissatisfaction with the group.")
 
 M_restaurant_min = np.argmin(M_people_X_restaurants, axis=1);
@@ -284,7 +284,7 @@ print("Otherwise, rely on the recommendation from the clustering results.")
 
 print("")
 print("Ok. Now you just found out the boss is paying for the meal. How should you adjust. Now what is best restaurant?")
-print("!! Awesome, make the cost weight to zero and recalculate the rank.")
+print("!! Awesome, make the cost weight from people matrix to zero and recalculate the rank.")
 print("")
 
 newM_people = M_people
@@ -298,6 +298,7 @@ print(M_usr_x_rest_rank)
 print("")
 print("As you can see, the top restaurants choices are same, Cost is not the only deciding factor")
 # Tommorow you visit another team. You have the same restaurants and they told you their optimal ordering for restaurants.  Can you find their weight matrix?
+
 sys.stdout = orig_stdout
 f.close()
 
