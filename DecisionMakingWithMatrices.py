@@ -126,7 +126,6 @@ def knn2to4(fitMatrix):
 
     return
 
-
 p_names  = ['Ross', 'Rachel', 'Joey', 'Monica', 'Phoebe','Chandler','Jerry', 'George', 'Kramer', 'Elaine']
 p_cats = ['Willingness to travel','Desire for new experience', 'Cost', 'Choice of Menu',"Service", 'Environment']
 
