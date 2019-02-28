@@ -8,6 +8,8 @@ from sklearn.cluster import KMeans #, MiniBatchKMeans
 from sklearn.metrics.pairwise import pairwise_distances_argmin
 from sklearn.decomposition import PCA
 from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn import metrics
+from sklearn.metrics import davies_bouldin_score
 
 import sys
 orig_stdout = sys.stdout
@@ -15,6 +17,7 @@ f = open('MuthuPalaniHomeWork3.txt', 'w')
 sys.stdout = f
 
 def make_dict(names, categories, floatRint):
+    
     # Create People & Restaurant Dictionary with random integer (or) float
     # Sum of Category weight should be 1 for People Matrix
     # floatRInt indicator will instruct the function to execute dirichlet (or)randint function
@@ -55,6 +58,7 @@ def convert_list_to_matrix(list):
     return(passing_list_array)
     
 def DataProcessing(people, restaurants, names):
+   
     # One Stop function to create people x restaurant matrix and the rank..
     new_people = np.swapaxes(people, 0, 1)
     people_X_restaurants = np.dot(restaurants, new_people)
@@ -66,6 +70,7 @@ def DataProcessing(people, restaurants, names):
     return (people_X_restaurants, rankMatrix, usr_x_rest_rank)
 
 def createRankMatrix(names, ranks):
+    
     # Create rank from raw score.
     rankMatrix = {}
     for i in range(len(ranks)):
@@ -168,8 +173,8 @@ print('')
 
 print("The most important idea in this project is the idea of a linear combination.")
 print("Informally describe what a linear combination is and how it will relate to our restaurant matrix.")
-print("Linear Combination is the process of simplifying two algebric equation so that one variable is eliminated.")
-print("In this People vs. Restuarant matrics the weights and ratings are simplified for arriving at the rank ")
+print("Linear Combination is the process of simplifying two algebraic equation so that one variable is eliminated.")
+print("In this People vs. Restaurant metrics the weights and ratings are simplified for arriving at the rank ")
 
 print("")
 
@@ -261,6 +266,7 @@ print("Identify a common restaurant between the person and the group so that eve
 print("Other options discussed are.. ")
 print("Overall Score could be used to decide on what restaurants to go!")
 print("Identify highest disapproval rating and exclude them from the selection")
+
 print("")
 print("Find user profiles that are problematic, explain why?")
 print("Heat map created on the matrix could identify the person who made those choices for further action/decision")
@@ -277,30 +283,23 @@ dentogram(M_restaurants, r_names, title)
 title = "People Dentogram"
 dentogram(M_people, p_names, title)
 
-# MiniBatchKMeans
-'''
-batch_size = 45
-bk = MiniBatchKMeans(init='k-means++', n_clusters=3, batch_size=batch_size,
-                      n_init=10, max_no_improvement=10, verbose=0).fit(M_people_X_restaurants)
-mbk_means_cluster_centers = np.sort(mbk.cluster_centers_, axis=0)
-mbk_means_labels = pairwise_distances_argmin(M_people_X_restaurants, mbk_means_cluster_centers)
 
-ax = fig.add_subplot(1, 2, 2)
-for k, col in zip(range(n_clusters), colors):
-    my_members = mbk_means_labels == k
-    cluster_center = mbk_means_cluster_centers[k]
-    ax.plot(M_people_X_restaurants[my_members, 0], M_people_X_restaurants[my_members, 1], 'w',
-            markerfacecolor=col, marker='.')
-    ax.plot(cluster_center[0], cluster_center[1], 'o', markerfacecolor=col,
-            markeredgecolor='k', markersize=6)
-ax.set_title('MiniBatchKMeans')
-ax.set_xticks(())
-ax.set_yticks(())
-'''
+n_clusters = 2
+kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(mPeopleXRestaurantsPcaTransform)
+k_means_cluster_centers = np.sort(kmeans.cluster_centers_, axis=0)
+k_means_cluster_labels = kmeans.predict(mPeopleXRestaurantsPcaTransform)
 
+print("Since the ground truth scores are not available with People X  Restaurant Matrix")
+print("Decided to use Davies Bouldin Score & Calinski Harabaz Score to check the purity of the cluster")
+print("=-=-=-=-=Caliniski Harabaz score will be higher for clusters are dense and well separated =-=-=-=-=")
+print(metrics.calinski_harabaz_score(mPeopleXRestaurantsPcaTransform, kmeans.labels_))
+print("=-=-=-=-=-=-= Davies Bouldin Score - lower the score for better separation =-=-=-=-=-=-=-=-=")
+print(davies_bouldin_score(mPeopleXRestaurantsPcaTransform, kmeans.labels_))
+print("")                                        
 
 print ("Think of two metrics to compute the dissatisfaction with the group.")
-
+print("Created the lowscore matrices to identify the least favorite")
+print("")
 M_restaurant_min = np.argmin(M_people_X_restaurants, axis=1);
 M_people_min = np.argmin(M_people_X_restaurants, axis=0);
 
@@ -313,12 +312,12 @@ print("")
 for i in range(len(M_restaurant_min)):
     print (r_names[i], "got low score from ", p_names[M_restaurant_min[i]])
 
-
-print("Should you split in two groups today?")
-print("K-Mean clustering could help decide on the answer, if there is unanimous choice of one individual then Yes.")
-print("Otherwise, rely on the recommendation from the clustering results.")
-
 print("")
+print("Should you split in two groups today?")
+print("Yes, KMeans also points towards the direction as two cluster purity is better.")
+print("If there had to be one group, then weightage could be given to distance and decide.")
+print("")
+
 print("Ok. Now you just found out the boss is paying for the meal. How should you adjust. Now what is best restaurant?")
 print("!! Awesome, make the cost weight from people matrix to zero and recalculate the rank.")
 print("")
@@ -335,7 +334,7 @@ print("")
 print("As you can see, the top restaurants choices are same, Cost is not the only deciding factor")
 print("")
 
-print("Tommorow you visit another team. You have the same restaurants and they told you their optimal ordering for restaurants.")
+print("Tomorrow you visit another team. You have the same restaurants and they told you their optimal ordering for restaurants.")
 print("Can you find their weight matrix?")
 
 sys.stdout = orig_stdout
