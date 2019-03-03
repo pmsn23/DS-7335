@@ -471,7 +471,8 @@ print("As you can clearly see the shift in ranking.")
 
 print("Tomorrow you visit another team. You have the same restaurants and they told you their optimal ordering for restaurants.")
 print("Can you find their weight matrix?")
-print("Using matrix inverse, we can figure out weight matrix..")
+print("Yes, Using matrix inverse, we can figure out weight matrix..")
+print("Below is the snapshot of the original and inverse weights..")
 
 people = make_dict(p_names, p_cats, "F")
 restaurants = make_dict(r_names,r_cats, "I")
