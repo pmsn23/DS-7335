@@ -100,13 +100,13 @@ def dentogram(fitMatrix, label, title):
     
     return
 
-def knn2to4(fitMatrix):
+def knn2to4(fitMatrix,subtitle):
     n_clusters = 1 # Initialize, gets incremented inside the loop.
     colors = ['#4EACC5', '#FF9C34', '#4E9A06','#377eb8'] # colors for the plot.
 
     fig = plt.figure(figsize=(8, 5))
     fig.subplots_adjust(left=0.02, right=0.98, bottom=0.05, top=0.9)
-    plt.suptitle('KMeans with PCA')
+    plt.suptitle(subtitle)
 
     for i in range(3):
         
@@ -224,11 +224,12 @@ def checkClusterPurity(fitMatrix):
     
     range_n_clusters = [2, 3, 4]
     print("Davies Bouldin Score: Lower means better separated, zero is the lowest")
-    print("Calinski Harabaz Score: Higher means desnse and well separated")
+    print("Calinski Harabaz Score: Higher means dense and well separated")
     print("")
     print("No. of Clusters\t\tCalinski Harabaz Index\t\tDavies Bouldin Score")
     for n_clusters in range_n_clusters:
-
+        
+        pca = PCA(n_components=n_clusters)
         mPeopleXRestaurantsPcaTransform = pca.fit_transform(fitMatrix) 
         kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(mPeopleXRestaurantsPcaTransform)
         k_means_cluster_labels = kmeans.predict(mPeopleXRestaurantsPcaTransform)
@@ -237,8 +238,12 @@ def checkClusterPurity(fitMatrix):
               "\t\t",davies_bouldin_score(mPeopleXRestaurantsPcaTransform, k_means_cluster_labels))
         
     return
-    
-    
+
+print("=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=")    
+print("I have decided to use random weights and scores for the people and restaurant matrix")
+print("As this would be the case in real world and will have an element of surprise")
+print("")    
+
 p_names  = ['Ross', 'Rachel', 'Joey', 'Monica', 'Phoebe','Chandler','Jerry', 'George', 'Kramer', 'Elaine']
 p_cats = ['Willingness to travel','Desire for new experience', 'Cost', 'Choice of Menu',"Service", 'Environment']
 
@@ -344,7 +349,7 @@ print("What problem arrives?")
 print("Low score across on restaurants creates bias makes the rank out of sequence")
 print("What does represent in the real world?")
 print("It is difficult to control individual choice as it is based on the individual experience.")
-print("With less number of examples and outliers this would makes the recommendation inaccurate")
+print("With less number of examples and outliers makes the recommendation inaccurate")
 
 print("")
 print("")
@@ -385,16 +390,20 @@ print("Mostly those who score low across creates skewness.")
 # Check for optimal clusters
 chkMaxClusters(M_people_X_restaurants)
 
-print("Given the size of the data, Silhouette plot returns even sized (almost) clusters when the number of clusters is 2")
-print("Decided to go with two clusters for PCA + Kmeans analysis")
+print("Given the size of the data and random weights and score, 2 (or) 3 clusters are optimal choice") 
+print("Decided to try two & three clusters for PCA + Kmeans analysis")
 print("")
 
-# KNN with PCA.
-pca = PCA(n_components=2)  
-mPeopleXRestaurantsPcaTransform = pca.fit_transform(M_people_X_restaurants)  
-knn2to4(mPeopleXRestaurantsPcaTransform)
 
-print ("KNN + PCA visualization also confirms two clusters are optimal and better")
+# KNN with PCA.
+range_of_components = [2,3,4]
+for n_components in range_of_components:
+
+    pca = PCA(n_components=n_components)   
+    subtitle = ("KMeans with PCA - %i" %n_components)
+    mPeopleXRestaurantsPcaTransform = pca.fit_transform(M_people_X_restaurants)  
+    knn2to4(mPeopleXRestaurantsPcaTransform,subtitle)
+
 print("")
 print("Created Dentogram to visualize the similarity and dissimilarity between peoples / restaurants")
 print("")
@@ -411,7 +420,8 @@ checkClusterPurity(M_people_X_restaurants)
 
 print("")                                        
 
-print("These two scores also confirms the 2 cluster is better and good.")
+print("These two scores also confirms the 2 (or) 3 clusters are better and good depending upon the data.")
+print("Refer to the guidelines on the scores")
 print("")
 print ("Think of two metrics to compute the dissatisfaction with the group.")
 print("Created the low score matrices to identify the least favorite")
@@ -431,20 +441,22 @@ for i in range(len(M_restaurant_min)):
 
 print("")
 print("Should you split in two groups today?")
-print("Yes, KMeans also points towards the direction as two cluster purity is better.")
-print("Since I chose to assign weights and score using random functions, most of the time there is a two way split")
+print("Yes, Since I chose to assign weights and score using random functions") 
+print("Most of the time there is a two way split based on the favorite resturants choice")
+print("")
 print("If there had to be one group, one option is to try assigning higher weightage to distance") 
-print("In real world this would be a top deciding factor")
+print("In real world this could be a deciding factor")
 print("")
 
 print("Ok. Now you just found out the boss is paying for the meal. How should you adjust. Now what is best restaurant?")
 print("!! Awesome, make the cost weight from people matrix to zero and/or restaurant matrix score to one and recalculate the rank.")
 print("")
 
-newM_people = M_people
+newM_people = np.copy(M_people)
 newM_people[:, 2] = 0
-newM_restaurants = M_restaurants
-newM_people[:, 2] = 1
+
+newM_restaurants = np.copy(M_restaurants)
+newM_restaurants[:, 2] = 1
 
 newM_people_X_restaurants, newrankMatrix, newM_usr_x_rest_rank = DataProcessing(newM_people, newM_restaurants, r_names)
 
@@ -459,6 +471,22 @@ print("As you can clearly see the shift in ranking.")
 
 print("Tomorrow you visit another team. You have the same restaurants and they told you their optimal ordering for restaurants.")
 print("Can you find their weight matrix?")
+print("Using matrix inverse, we can figure out weight matrix..")
+
+people = make_dict(p_names, p_cats, "F")
+restaurants = make_dict(r_names,r_cats, "I")
+
+M_people_X_restaurants, rankMatrix, M_usr_x_rest_rank = DataProcessing(M_people, M_restaurants, r_names)
+
+M_restaurants_inv = np.linalg.pinv(M_restaurants)
+M_people_weights = np.dot(M_restaurants_inv, M_people_X_restaurants)
+M_people_weights = np.swapaxes(M_people_weights, 0, 1)
+
+print("People Weight => Original")
+print(M_people)
+print("")
+print("People Weight => using inverse")
+print(np.around(M_people_weights,2))
 
 sys.stdout = orig_stdout
 f.close()
