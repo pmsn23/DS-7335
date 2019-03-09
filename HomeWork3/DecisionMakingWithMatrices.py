@@ -250,7 +250,6 @@ p_cats = ['Willingness to travel','Desire for new experience', 'Cost', 'Choice o
 people = make_dict(p_names, p_cats, "F")
 
 M_people = convert_list_to_matrix(people)
-print("")
 print ("=-=-=-=-=-=-=-=-= People Names =-=-=-=-=-=-=")
 print(p_names)
 print("")
@@ -271,7 +270,6 @@ r_cats = ['Distance', 'Novelty', 'Cost', "Food-Beverage Options", "Staff", "Ambi
 restaurants = make_dict(r_names,r_cats, "I")
 
 M_restaurants = convert_list_to_matrix(restaurants)
-print("")
 print("=-=-=-=-=-=-= Restaurants Names =-=-=-=-=-=-=-=-=")
 print(r_names)
 print("")
@@ -288,6 +286,7 @@ print('')
 
 print("The most important idea in this project is the idea of a linear combination.")
 print("Informally describe what a linear combination is and how it will relate to our restaurant matrix.")
+print("")
 print("Linear Combination is the process of simplifying two algebraic equation so that one variable is eliminated.")
 print("In this People vs. Restaurant metrics the weights and ratings are simplified for arriving at the rank")
 
@@ -295,7 +294,6 @@ print("")
 
 M_people_X_restaurants, rankMatrix, M_usr_x_rest_rank = DataProcessing(M_people, M_restaurants, r_names)
 
-print('')
 print("Next compute a new matrix (M_usr_x_rest  i.e. an user by restaurant) from all people")
 print("=-=-=-=-=-=-= Restaurants X People =-=-=-=-=-=-=-=-=")
 
@@ -306,18 +304,15 @@ print("What does the a_ij matrix represent?")
 print("Each Rows represents Restaurants and Column represents the People")
 print("")
 
-print("Sum all columns in M_usr_x_rest to get optimal restaurant for all users.")
-print("What do the entries represent?")
-print("Each entry represents overall score of each restaurants by all users")
-print("This is the raw score out of 10")
+print("Sum all columns in M_usr_x_rest to get optimal restaurant for all users, What do the entries represent?")
+print("Each entry represents overall score of each restaurants by all users, which is the raw score out of 100")
+print("")
 print(r_names)
 print(np.sum(M_people_X_restaurants, axis=1))
 print("")
 
-print("")
-print("Choose a person and compute(using a linear combination) the top restaurant for them.")
-print("What does each entry in the resulting vector represent.")
-print("Resulting vector represents the favorite restaurant for the person")
+print("Choose a person and compute(using a linear combination) the top restaurant for them, What does each entry in the resulting vector represent.")
+print("Below resulting vector represents the favorite restaurant for the person")
 print("=-=-=-=-=-= Most Favorite Restaurant of =-=-=-=-=-=")
 
 M_restaurant_max = np.argmax(M_people_X_restaurants, axis=1);
@@ -343,15 +338,14 @@ print("")
 print(M_usr_x_rest_rank)
 print("")
 
-print("Why is there a difference between the two?")
+print("Why is there a difference between the two?, What problem arrives?")
+print("A restaurant might get higher score from a person which doesn't mean that is their favorite")
+print("Low score across one restaurants creates bias makes the rank out of sequence")
 print("")
-print("What problem arrives?")
-print("Low score across on restaurants creates bias makes the rank out of sequence")
 print("What does represent in the real world?")
 print("It is difficult to control individual choice as it is based on the individual experience.")
-print("With less number of examples and outliers makes the recommendation inaccurate")
+print("With less number of examples and outliers may makes the recommendation less reliable")
 
-print("")
 print("")
 # Code reference:
 # https://matplotlib.org/gallery/images_contours_and_fields/image_annotated_heatmap.html#sphx-glr-gallery-images-contours-and-fields-image-annotated-heatmap-py
@@ -378,7 +372,7 @@ plt.show()
 plt.close()
 
 print("How should you preprocess your data to remove this problem.")
-print("Could remove the outlier (scored very low) to improves the situation")
+print("Could remove the outlier (scored very low) to improves the recommendation")
 print("Overall Score could be used to decide on while making decisions")
 print("Check if there are any issue with these scores for errors.")
 
@@ -396,7 +390,7 @@ print("")
 
 
 # KNN with PCA.
-range_of_components = [2,3,4]
+range_of_components = [2,3]
 for n_components in range_of_components:
 
     pca = PCA(n_components=n_components)   
@@ -441,8 +435,7 @@ for i in range(len(M_restaurant_min)):
 
 print("")
 print("Should you split in two groups today?")
-print("Yes, Since I chose to assign weights and score using random functions") 
-print("Most of the time there is a two way split based on the favorite resturants choice")
+print("Yes, On multiple runs there were some resulted in two way split since the weights and scores are random") 
 print("")
 print("If there had to be one group, one option is to try assigning higher weightage to distance") 
 print("In real world this could be a deciding factor")
@@ -488,7 +481,8 @@ print(M_people)
 print("")
 print("People Weight => using inverse")
 print(np.around(M_people_weights,2))
-
+print("")
+print("If we do not know the Restaurant Matrix, then we could use np.linalg.lstsq and calculate the least square estimation to arrive at the weights")
 sys.stdout = orig_stdout
 f.close()
 
